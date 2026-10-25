@@ -1,0 +1,22 @@
+{
+  "domain": "samsung_frame",
+  "name": "Samsung The Frame",
+  "codeowners": [
+    "@roquerodrigo"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "media_source"
+  ],
+  "documentation": "https://github.com/roquerodrigo/ha-samsung-frame",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/roquerodrigo/ha-samsung-frame/issues",
+  "loggers": [
+    "samsungtvws"
+  ],
+  "requirements": [
+    "samsungtvws>=3.0.6"
+  ],
+  "version": "0.0.0"
+}

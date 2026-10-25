@@ -1,0 +1,104 @@
+upload_artwork:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: samsung_frame
+    image:
+      required: true
+      selector:
+        media:
+          accept:
+            - image/*
+    matte_style:
+      default: "none"
+      selector:
+        select:
+          translation_key: matte_style
+          options:
+            - "none"
+            - "modernthin"
+            - "modern"
+            - "modernwide"
+            - "flexible"
+            - "shadowbox"
+            - "panoramic"
+            - "triptych"
+            - "mix"
+            - "squares"
+    matte_color:
+      default: "polar"
+      selector:
+        select:
+          translation_key: matte_color
+          options:
+            - "polar"
+            - "black"
+            - "neutral"
+            - "antique"
+            - "warm"
+            - "sand"
+            - "seafoam"
+            - "sage"
+            - "burgandy"
+            - "navy"
+            - "apricot"
+            - "byzantine"
+            - "lavender"
+            - "redorange"
+            - "skyblue"
+            - "turquoise"
+    show:
+      default: true
+      selector:
+        boolean:
+    name:
+      example: "Impression, Sunrise (Claude Monet)"
+      selector:
+        text:
+select_artwork:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: samsung_frame
+    content_id:
+      required: true
+      example: "MY_F0001"
+      selector:
+        text:
+    show:
+      default: true
+      selector:
+        boolean:
+delete_artwork:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: samsung_frame
+    content_id:
+      required: true
+      example: "MY_F0001"
+      selector:
+        text:
+rename_artwork:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: samsung_frame
+    content_id:
+      required: true
+      example: "MY_F0017"
+      selector:
+        text:
+    name:
+      required: true
+      example: "Impression, Sunrise (Claude Monet)"
+      selector:
+        text:
