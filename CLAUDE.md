@@ -45,7 +45,7 @@ Verify the pairing on PyPI before committing: the `requires_dist` of `pytest-hom
 
 ## Conventions not obvious from the code
 
-The integration follows the HA `DataUpdateCoordinator` pattern; the module-by-module layout is in `README.md`. A few choices are not evident from reading a single file:
+The integration follows the HA `DataUpdateCoordinator` pattern. A few choices are not evident from reading a single file:
 
 - State lives on `entry.runtime_data` (auto-discarded on unload), **never** on `hass.data`.
 - `data/__init__.py` holds the `type` alias `SamsungFrameConfigEntry` **and** re-exports every symbol from the sibling modules, so downstream code imports everything from `.data`.
