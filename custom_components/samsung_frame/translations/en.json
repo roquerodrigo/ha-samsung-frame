@@ -1,0 +1,225 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Set up Samsung The Frame",
+                "description": "Enter the address of the TV. It must be on and connected to the same network.",
+                "data": {
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "IP address or hostname of the TV."
+                }
+            },
+            "pair": {
+                "title": "Pair with {name}",
+                "description": "Select Submit, then accept the connection request that appears on {name} within 30 seconds."
+            },
+            "reauth_confirm": {
+                "title": "Pair with {name} again",
+                "description": "The TV no longer accepts the stored pairing. Select Submit, then accept the connection request that appears on {name} within 30 seconds."
+            },
+            "reconfigure": {
+                "title": "Reconfigure Samsung The Frame",
+                "description": "Update the address of the TV.",
+                "data": {
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "IP address or hostname of the TV."
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Unable to reach the TV. Check that it is on and that the address is correct.",
+            "not_supported": "This TV does not support Art Mode.",
+            "pairing_refused": "The TV refused the connection request.",
+            "pairing_timeout": "The connection request was not accepted in time. Try again.",
+            "unknown": "Unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This TV is already configured.",
+            "reauth_successful": "Pairing was successful.",
+            "reconfigure_successful": "Reconfiguration was successful.",
+            "unique_id_mismatch": "The TV at this address is not the one this entry was set up with."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Samsung The Frame options",
+                "description": "Tune how often the art mode state is read from the TV.",
+                "data": {
+                    "scan_interval": "Polling interval (seconds)"
+                }
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "current_artwork": {
+                "name": "Current artwork",
+                "state_attributes": {
+                    "content_id": {
+                        "name": "Content ID"
+                    }
+                }
+            }
+        },
+        "switch": {
+            "art_mode": {
+                "name": "Art mode"
+            }
+        }
+    },
+    "selector": {
+        "matte_style": {
+            "options": {
+                "none": "None",
+                "modernthin": "Modern thin",
+                "modern": "Modern",
+                "modernwide": "Modern wide",
+                "flexible": "Flexible",
+                "shadowbox": "Shadow box",
+                "panoramic": "Panoramic",
+                "triptych": "Triptych",
+                "mix": "Mix",
+                "squares": "Squares"
+            }
+        },
+        "matte_color": {
+            "options": {
+                "polar": "Polar",
+                "black": "Black",
+                "neutral": "Neutral",
+                "antique": "Antique",
+                "warm": "Warm",
+                "sand": "Sand",
+                "seafoam": "Seafoam",
+                "sage": "Sage",
+                "burgandy": "Burgundy",
+                "navy": "Navy",
+                "apricot": "Apricot",
+                "byzantine": "Byzantine",
+                "lavender": "Lavender",
+                "redorange": "Red orange",
+                "skyblue": "Sky blue",
+                "turquoise": "Turquoise"
+            }
+        }
+    },
+    "services": {
+        "upload_artwork": {
+            "name": "Upload artwork",
+            "description": "Uploads an image to the art collection of the TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "The Samsung The Frame TV to use."
+                },
+                "image": {
+                    "name": "Image",
+                    "description": "JPEG or PNG image to upload, from a media source or a URL."
+                },
+                "matte_style": {
+                    "name": "Matte style",
+                    "description": "Style of the matte drawn around the artwork. Not every TV supports every style."
+                },
+                "matte_color": {
+                    "name": "Matte color",
+                    "description": "Color of the matte. Ignored when the style is None."
+                },
+                "show": {
+                    "name": "Show",
+                    "description": "Select the uploaded artwork as the one on display."
+                },
+                "name": {
+                    "name": "Name",
+                    "description": "Name Home Assistant shows for the artwork. Defaults to the title picked in the media browser or to the file name."
+                }
+            }
+        },
+        "select_artwork": {
+            "name": "Select artwork",
+            "description": "Selects an artwork from the collection of the TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "The Samsung The Frame TV to use."
+                },
+                "content_id": {
+                    "name": "Content ID",
+                    "description": "Content ID of the artwork, as returned by the upload action or shown in the content_id attribute of the current artwork sensor."
+                },
+                "show": {
+                    "name": "Show",
+                    "description": "Select the artwork as the one on display."
+                }
+            }
+        },
+        "delete_artwork": {
+            "name": "Delete artwork",
+            "description": "Deletes an artwork from the collection of the TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "The Samsung The Frame TV to use."
+                },
+                "content_id": {
+                    "name": "Content ID",
+                    "description": "Content ID of the artwork, as returned by the upload action or shown in the content_id attribute of the current artwork sensor."
+                }
+            }
+        },
+        "rename_artwork": {
+            "name": "Rename artwork",
+            "description": "Changes the name Home Assistant shows for an artwork of the TV. The TV itself keeps no names.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "The Samsung The Frame TV to use."
+                },
+                "content_id": {
+                    "name": "Content ID",
+                    "description": "Content ID of the artwork, as returned by the upload action or shown in the content_id attribute of the current artwork sensor."
+                },
+                "name": {
+                    "name": "Name",
+                    "description": "New name of the artwork. Leave it blank to go back to the content ID."
+                }
+            }
+        }
+    },
+    "exceptions": {
+        "entry_not_found": {
+            "message": "No Samsung The Frame entry with ID {entry_id} exists."
+        },
+        "entry_not_loaded": {
+            "message": "The Samsung The Frame entry {entry_id} is not loaded."
+        },
+        "art_mode_failed": {
+            "message": "Failed to change the art mode of the TV."
+        },
+        "upload_failed": {
+            "message": "Failed to upload the artwork to the TV."
+        },
+        "select_failed": {
+            "message": "Failed to select the artwork {content_id} on the TV."
+        },
+        "delete_failed": {
+            "message": "Failed to delete the artwork {content_id} from the TV."
+        },
+        "unsupported_image_format": {
+            "message": "Only JPEG and PNG images can be uploaded to the TV."
+        },
+        "unsupported_image_source": {
+            "message": "{media_content_id} is neither a media source nor an HTTP(S) URL."
+        },
+        "image_not_resolved": {
+            "message": "Unable to resolve the media {media_content_id}."
+        },
+        "image_download_failed": {
+            "message": "Failed to download the image."
+        }
+    }
+}

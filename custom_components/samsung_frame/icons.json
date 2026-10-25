@@ -1,0 +1,28 @@
+{
+    "entity": {
+        "sensor": {
+            "current_artwork": {
+                "default": "mdi:image-outline"
+            }
+        },
+        "switch": {
+            "art_mode": {
+                "default": "mdi:image-frame"
+            }
+        }
+    },
+    "services": {
+        "upload_artwork": {
+            "service": "mdi:image-plus"
+        },
+        "select_artwork": {
+            "service": "mdi:image-check"
+        },
+        "delete_artwork": {
+            "service": "mdi:image-remove"
+        },
+        "rename_artwork": {
+            "service": "mdi:rename"
+        }
+    }
+}

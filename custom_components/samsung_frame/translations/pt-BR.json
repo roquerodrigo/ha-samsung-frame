@@ -1,0 +1,225 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configurar Samsung The Frame",
+                "description": "Informe o endereço da TV. Ela precisa estar ligada e conectada à mesma rede.",
+                "data": {
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "Endereço IP ou nome de host da TV."
+                }
+            },
+            "pair": {
+                "title": "Parear com {name}",
+                "description": "Selecione Enviar e aceite, em até 30 segundos, o pedido de conexão que aparece em {name}."
+            },
+            "reauth_confirm": {
+                "title": "Parear novamente com {name}",
+                "description": "A TV não aceita mais o pareamento salvo. Selecione Enviar e aceite, em até 30 segundos, o pedido de conexão que aparece em {name}."
+            },
+            "reconfigure": {
+                "title": "Reconfigurar Samsung The Frame",
+                "description": "Atualize o endereço da TV.",
+                "data": {
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "Endereço IP ou nome de host da TV."
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Não foi possível acessar a TV. Verifique se ela está ligada e se o endereço está correto.",
+            "not_supported": "Esta TV não é compatível com o Modo Arte.",
+            "pairing_refused": "A TV recusou o pedido de conexão.",
+            "pairing_timeout": "O pedido de conexão não foi aceito a tempo. Tente novamente.",
+            "unknown": "Ocorreu um erro desconhecido."
+        },
+        "abort": {
+            "already_configured": "Esta TV já está configurada.",
+            "reauth_successful": "O pareamento foi concluído.",
+            "reconfigure_successful": "A reconfiguração foi concluída.",
+            "unique_id_mismatch": "A TV neste endereço não é a mesma com que esta entrada foi configurada."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Opções do Samsung The Frame",
+                "description": "Ajuste a frequência com que o estado do Modo Arte é lido da TV.",
+                "data": {
+                    "scan_interval": "Intervalo de atualização (segundos)"
+                }
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "current_artwork": {
+                "name": "Obra atual",
+                "state_attributes": {
+                    "content_id": {
+                        "name": "ID do conteúdo"
+                    }
+                }
+            }
+        },
+        "switch": {
+            "art_mode": {
+                "name": "Modo Arte"
+            }
+        }
+    },
+    "selector": {
+        "matte_style": {
+            "options": {
+                "none": "Nenhuma",
+                "modernthin": "Moderna fina",
+                "modern": "Moderna",
+                "modernwide": "Moderna larga",
+                "flexible": "Flexível",
+                "shadowbox": "Caixa com sombra",
+                "panoramic": "Panorâmica",
+                "triptych": "Tríptico",
+                "mix": "Mosaico",
+                "squares": "Quadrados"
+            }
+        },
+        "matte_color": {
+            "options": {
+                "polar": "Polar",
+                "black": "Preto",
+                "neutral": "Neutro",
+                "antique": "Antigo",
+                "warm": "Quente",
+                "sand": "Areia",
+                "seafoam": "Verde-mar",
+                "sage": "Sálvia",
+                "burgandy": "Bordô",
+                "navy": "Azul-marinho",
+                "apricot": "Damasco",
+                "byzantine": "Bizantino",
+                "lavender": "Lavanda",
+                "redorange": "Vermelho-alaranjado",
+                "skyblue": "Azul-celeste",
+                "turquoise": "Turquesa"
+            }
+        }
+    },
+    "services": {
+        "upload_artwork": {
+            "name": "Enviar obra",
+            "description": "Envia uma imagem para a coleção de arte da TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "A TV Samsung The Frame a ser usada."
+                },
+                "image": {
+                    "name": "Imagem",
+                    "description": "Imagem JPEG ou PNG a enviar, de uma fonte de mídia ou de uma URL."
+                },
+                "matte_style": {
+                    "name": "Estilo do passe-partout",
+                    "description": "Estilo do passe-partout desenhado ao redor da obra. Nem toda TV é compatível com todos os estilos."
+                },
+                "matte_color": {
+                    "name": "Cor do passe-partout",
+                    "description": "Cor do passe-partout. Ignorada quando o estilo é Nenhuma."
+                },
+                "show": {
+                    "name": "Exibir",
+                    "description": "Seleciona a obra enviada como a que está em exibição."
+                },
+                "name": {
+                    "name": "Nome",
+                    "description": "Nome que o Home Assistant mostra para a obra. Por padrão, o título escolhido no navegador de mídia ou o nome do arquivo."
+                }
+            }
+        },
+        "select_artwork": {
+            "name": "Selecionar obra",
+            "description": "Seleciona uma obra da coleção da TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "A TV Samsung The Frame a ser usada."
+                },
+                "content_id": {
+                    "name": "ID do conteúdo",
+                    "description": "ID do conteúdo da obra, retornado pela ação de envio ou exibido no atributo content_id do sensor de obra atual."
+                },
+                "show": {
+                    "name": "Exibir",
+                    "description": "Seleciona a obra como a que está em exibição."
+                }
+            }
+        },
+        "delete_artwork": {
+            "name": "Excluir obra",
+            "description": "Exclui uma obra da coleção da TV.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "A TV Samsung The Frame a ser usada."
+                },
+                "content_id": {
+                    "name": "ID do conteúdo",
+                    "description": "ID do conteúdo da obra, retornado pela ação de envio ou exibido no atributo content_id do sensor de obra atual."
+                }
+            }
+        },
+        "rename_artwork": {
+            "name": "Renomear obra",
+            "description": "Altera o nome que o Home Assistant mostra para uma obra da TV. A própria TV não guarda nomes.",
+            "fields": {
+                "config_entry_id": {
+                    "name": "TV",
+                    "description": "A TV Samsung The Frame a ser usada."
+                },
+                "content_id": {
+                    "name": "ID do conteúdo",
+                    "description": "ID do conteúdo da obra, retornado pela ação de envio ou exibido no atributo content_id do sensor de obra atual."
+                },
+                "name": {
+                    "name": "Nome",
+                    "description": "Novo nome da obra. Deixe em branco para voltar a exibir o ID do conteúdo."
+                }
+            }
+        }
+    },
+    "exceptions": {
+        "entry_not_found": {
+            "message": "Não existe entrada do Samsung The Frame com o ID {entry_id}."
+        },
+        "entry_not_loaded": {
+            "message": "A entrada do Samsung The Frame {entry_id} não está carregada."
+        },
+        "art_mode_failed": {
+            "message": "Falha ao alterar o Modo Arte da TV."
+        },
+        "upload_failed": {
+            "message": "Falha ao enviar a obra para a TV."
+        },
+        "select_failed": {
+            "message": "Falha ao selecionar a obra {content_id} na TV."
+        },
+        "delete_failed": {
+            "message": "Falha ao excluir a obra {content_id} da TV."
+        },
+        "unsupported_image_format": {
+            "message": "Somente imagens JPEG e PNG podem ser enviadas para a TV."
+        },
+        "unsupported_image_source": {
+            "message": "{media_content_id} não é uma fonte de mídia nem uma URL HTTP(S)."
+        },
+        "image_not_resolved": {
+            "message": "Não foi possível resolver a mídia {media_content_id}."
+        },
+        "image_download_failed": {
+            "message": "Falha ao baixar a imagem."
+        }
+    }
+}
