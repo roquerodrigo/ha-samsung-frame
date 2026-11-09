@@ -17,10 +17,10 @@ dev = [
     "homeassistant==2026.10.3",
     "pre-commit==4.7.0",
     "pytest-homeassistant-custom-component==0.13.374",
-    "samsungtvws==3.0.6",
+    "samsungtvws==3.0.7",
 ]
 lint = [
-    "ruff==0.17.3",
+    "ruff==0.17.4",
     "mypy==2.4.1",
 ]
 
