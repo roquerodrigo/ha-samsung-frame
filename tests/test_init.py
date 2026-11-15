@@ -66,6 +66,39 @@ async def test_setup_entry_retries_when_first_refresh_fails(
     assert config_entry.state == ConfigEntryState.SETUP_RETRY
 
 
+async def test_setup_entry_follows_a_tv_that_changed_its_id(
+    hass, setup_integration, mock_api_client, device_info
+):
+    await hass.config_entries.async_unload(setup_integration.entry_id)
+    mock_api_client.async_get_device_info.return_value = {
+        **device_info,
+        "device_id": "0880147b-37af-423b-bd8c-7f6388d89d92",
+    }
+    await hass.config_entries.async_setup(setup_integration.entry_id)
+    await hass.async_block_till_done()
+
+    assert setup_integration.state == ConfigEntryState.LOADED
+    assert setup_integration.unique_id == "0880147b-37af-423b-bd8c-7f6388d89d92"
+    assert len(hass.states.async_all("switch")) == 1
+    assert len(hass.states.async_all("sensor")) == 1
+
+
+async def test_setup_entry_retries_when_another_tv_answers(
+    hass, setup_integration, mock_api_client, device_info
+):
+    await hass.config_entries.async_unload(setup_integration.entry_id)
+    mock_api_client.async_get_device_info.return_value = {
+        **device_info,
+        "device_id": "another-tv",
+        "mac": "00:11:22:33:44:55",
+    }
+    await hass.config_entries.async_setup(setup_integration.entry_id)
+    await hass.async_block_till_done()
+
+    assert setup_integration.state == ConfigEntryState.SETUP_RETRY
+    assert setup_integration.unique_id == DEVICE_ID
+
+
 async def test_services_are_registered(hass, setup_integration):
     for service in ("upload_artwork", "select_artwork", "delete_artwork"):
         assert hass.services.has_service(DOMAIN, service)

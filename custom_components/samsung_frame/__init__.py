@@ -15,6 +15,7 @@ from .artwork_names import SamsungFrameArtworkNames
 from .const import DEFAULT_SCAN_INTERVAL_SECONDS, DOMAIN
 from .coordinator import SamsungFrameDataUpdateCoordinator
 from .data import SamsungFrameData
+from .device_identity import SamsungFrameDeviceIdentity
 from .exceptions import SamsungFrameApiClientError
 from .services import async_register_services
 
@@ -50,6 +51,12 @@ async def async_setup_entry(
         device_info = await client.async_get_device_info()
     except SamsungFrameApiClientError as exception:
         raise ConfigEntryNotReady(exception) from exception
+
+    identity = SamsungFrameDeviceIdentity(hass, entry)
+    if not identity.is_same_tv(device_info):
+        msg = f"Failed to set up the TV: another TV answers at {config['host']}"
+        raise ConfigEntryNotReady(msg)
+    identity.async_adopt(device_info)
 
     artwork_names = SamsungFrameArtworkNames(hass, entry.entry_id)
     await artwork_names.async_load()

@@ -12,6 +12,7 @@ from homeassistant.helpers import selector
 
 from .api import SamsungFrameApiClient
 from .const import DOMAIN, LOGGER
+from .device_identity import SamsungFrameDeviceIdentity
 from .exceptions import (
     SamsungFrameApiClientAuthenticationError,
     SamsungFrameApiClientCommunicationError,
@@ -48,9 +49,9 @@ class SamsungFrameFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """
     Config flow for Samsung The Frame.
 
-    Setup happens in two steps: the host is checked over REST first, then a
-    connection is opened that the user has to approve on the TV screen, which
-    is what hands out the token every later connection presents.
+    Setup happens in two steps: the host is checked over REST first, then the
+    remote control channel is opened for the user to approve on the TV screen,
+    which is what hands out the token every later Art Mode connection presents.
     """
 
     VERSION = 1
@@ -158,8 +159,10 @@ class SamsungFrameFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             host = user_input[CONF_HOST].strip()
             device_info, errors = await self._async_read_device_info(host)
             if device_info is not None:
-                await self.async_set_unique_id(device_info["device_id"])
-                self._abort_if_unique_id_mismatch()
+                if not SamsungFrameDeviceIdentity(self.hass, entry).is_same_tv(
+                    device_info
+                ):
+                    return self.async_abort(reason="unique_id_mismatch")
                 return self.async_update_reload_and_abort(
                     entry,
                     data_updates={CONF_HOST: host},
