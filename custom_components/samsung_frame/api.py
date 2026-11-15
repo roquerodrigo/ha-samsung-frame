@@ -4,17 +4,19 @@ from __future__ import annotations
 
 import asyncio
 import re
+import threading
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
 import requests
-from samsungtvws import SamsungTVArt
+from samsungtvws import SamsungTVArt, SamsungTVWS
 from samsungtvws import exceptions as samsung_exceptions
 from samsungtvws.rest import SamsungTVRest
 from websocket import WebSocketException
 
 from .const import (
     CLIENT_NAME,
+    LOGGER,
     PAIRING_TIMEOUT_SECONDS,
     REQUEST_TIMEOUT_SECONDS,
     UPLOAD_TIMEOUT_SECONDS,
@@ -30,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from homeassistant.core import HomeAssistant
+    from samsungtvws.connection import SamsungTVWSConnection
 
     from .data import (
         SamsungFrameArtState,
@@ -38,6 +41,7 @@ if TYPE_CHECKING:
     )
 
 _TOKEN_QUERY = re.compile(r"token=[^&\s'\"]+")
+_CHANNEL_TIMEOUT_EVENT = "ms.channel.timeOut"
 
 _COMMUNICATION_ERRORS: tuple[type[Exception], ...] = (
     samsung_exceptions.ConnectionFailure,
@@ -60,20 +64,70 @@ def _sanitized_error_text(exception: BaseException) -> str:
     return _TOKEN_QUERY.sub("token=<redacted>", str(exception))
 
 
+def _is_channel_timeout(exception: samsung_exceptions.ConnectionFailure) -> bool:
+    """Return whether the TV closed the channel without accepting the client."""
+    response = exception.args[0] if exception.args else None
+    return (
+        isinstance(response, dict) and response.get("event") == _CHANNEL_TIMEOUT_EVENT
+    )
+
+
 @contextmanager
-def _translated_errors(action: str) -> Iterator[None]:
-    """Map the upstream library exceptions onto the integration hierarchy."""
+def _translated_errors(action: str, *, pairing: bool = False) -> Iterator[None]:
+    """
+    Map the upstream library exceptions onto the integration hierarchy.
+
+    Outside pairing, a channel timeout means the TV no longer accepts the
+    stored token, which only a new pairing fixes.
+    """
     try:
         yield
     except samsung_exceptions.UnauthorizedError as exception:
         msg = f"Failed to {action}: the TV refused the connection"
         raise SamsungFrameApiClientAuthenticationError(msg) from exception
+    except samsung_exceptions.ConnectionFailure as exception:
+        if _is_channel_timeout(exception) and not pairing:
+            msg = f"Failed to {action}: the TV no longer accepts the pairing"
+            raise SamsungFrameApiClientAuthenticationError(msg) from exception
+        msg = f"Failed to {action}: {_sanitized_error_text(exception)}"
+        raise SamsungFrameApiClientCommunicationError(msg) from exception
     except _COMMUNICATION_ERRORS as exception:
         msg = f"Failed to {action}: {_sanitized_error_text(exception)}"
         raise SamsungFrameApiClientCommunicationError(msg) from exception
     except _RESPONSE_ERRORS as exception:
         msg = f"Failed to {action}: {_sanitized_error_text(exception)}"
         raise SamsungFrameApiClientError(msg) from exception
+
+
+@contextmanager
+def _deadline(
+    channel: SamsungTVWSConnection, seconds: float, action: str
+) -> Iterator[None]:
+    """
+    Abort the channel once the operation outlives ``seconds``.
+
+    The TV pings every few seconds, which restarts the per-read socket timeout,
+    so a channel the TV stops answering would otherwise block forever.
+    """
+    expired = threading.Event()
+
+    def abort() -> None:
+        expired.set()
+        if channel.connection is not None:
+            channel.connection.abort()
+
+    timer = threading.Timer(seconds, abort)
+    timer.daemon = True
+    timer.start()
+    try:
+        yield
+    except Exception as exception:
+        if expired.is_set():
+            msg = f"Failed to {action}: the TV did not answer within {seconds} seconds"
+            raise SamsungFrameApiClientCommunicationError(msg) from exception
+        raise
+    finally:
+        timer.cancel()
 
 
 class SamsungFrameApiClient:
@@ -153,10 +207,24 @@ class SamsungFrameApiClient:
             }
 
     def _pair(self) -> str | None:
-        with self._art_connection(
-            "pair with the TV", pairing=True, timeout=PAIRING_TIMEOUT_SECONDS
-        ) as art:
-            return art.token
+        action = "pair with the TV"
+        remote = SamsungTVWS(
+            self._host,
+            token=None,
+            port=WEBSOCKET_PORT,
+            timeout=PAIRING_TIMEOUT_SECONDS,
+            key_press_delay=0,
+            name=CLIENT_NAME,
+        )
+        with (
+            _translated_errors(action, pairing=True),
+            _deadline(remote, PAIRING_TIMEOUT_SECONDS, action),
+        ):
+            try:
+                remote.open()
+            finally:
+                remote.close()
+        return remote.token
 
     def _get_art_state(self) -> SamsungFrameArtState:
         with self._art_connection("read the art mode state") as art:
@@ -170,7 +238,8 @@ class SamsungFrameApiClient:
 
     def _set_art_mode(self, enabled: bool) -> None:  # noqa: FBT001 -- positional for the executor
         with self._art_connection("change the art mode") as art:
-            art.set_artmode(enabled)
+            if (art.get_artmode() == "on") != enabled:
+                art.set_artmode(enabled)
 
     def _upload_artwork(
         self,
@@ -209,20 +278,49 @@ class SamsungFrameApiClient:
         self,
         action: str,
         *,
-        pairing: bool = False,
         timeout: float = REQUEST_TIMEOUT_SECONDS,
     ) -> Iterator[SamsungTVArt]:
+        with _translated_errors(action):
+            art = self._open_art_channel(action, timeout)
+            with _deadline(art, timeout, action):
+                try:
+                    yield art
+                finally:
+                    art.close()
+
+    def _open_art_channel(self, action: str, timeout: float) -> SamsungTVArt:
+        """
+        Open the Art Mode channel, without the stored token once the TV revoked it.
+
+        The TV keeps one valid token per client and revokes it whenever it
+        issues another one, which the core Samsung TV integration does on every
+        reconnection, while it still accepts a trusted client without a token.
+        """
+        try:
+            return self._open_art_channel_with(self._token, action, timeout)
+        except samsung_exceptions.ConnectionFailure as exception:
+            if self._token is None or not _is_channel_timeout(exception):
+                raise
+        LOGGER.debug("The TV revoked the stored token, connecting without it")
+        art = self._open_art_channel_with(None, action, timeout)
+        self._token = None
+        return art
+
+    def _open_art_channel_with(
+        self, token: str | None, action: str, timeout: float
+    ) -> SamsungTVArt:
         art = SamsungTVArt(
             self._host,
-            token=None if pairing else self._token,
+            token=token,
             port=WEBSOCKET_PORT,
             timeout=timeout,
             key_press_delay=0,
             name=CLIENT_NAME,
         )
-        with _translated_errors(action):
+        with _deadline(art, timeout, action):
             try:
                 art.open()
-                yield art
-            finally:
+            except BaseException:
                 art.close()
+                raise
+        return art
