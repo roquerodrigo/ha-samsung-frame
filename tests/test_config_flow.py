@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import device_registry as dr
 
 from custom_components.samsung_frame.const import DOMAIN
 from custom_components.samsung_frame.exceptions import (
@@ -228,6 +229,28 @@ async def test_reconfigure_to_another_tv_aborts(
     assert result["type"] == FlowResultType.ABORT
     assert result["reason"] == "unique_id_mismatch"
     assert config_entry.data["host"] == HOST
+
+
+async def test_reconfigure_follows_a_tv_that_changed_its_id(
+    hass, enable_custom_integrations, flow_client, config_entry
+):
+    config_entry.add_to_hass(hass)
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=config_entry.entry_id,
+        identifiers={(DOMAIN, DEVICE_ID)},
+        connections={(dr.CONNECTION_NETWORK_MAC, DEVICE_INFO["mac"])},
+    )
+    flow_client.async_get_device_info.return_value = {
+        **DEVICE_INFO,
+        "device_id": "0880147b-37af-423b-bd8c-7f6388d89d92",
+    }
+    result = await config_entry.start_reconfigure_flow(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"host": NEW_HOST}
+    )
+    assert result["type"] == FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert config_entry.data["host"] == NEW_HOST
 
 
 async def test_reconfigure_unreachable_shows_error(

@@ -125,6 +125,9 @@ Deletes an artwork from the collection by `content_id`, together with its name. 
 
 - **The entities are unavailable while the TV is off.** The Art Mode API only answers while the TV is on or showing art.
 - **Pairing times out.** Make sure the TV is on, select Submit again and accept the request on the TV screen. If you denied it once, allow `HomeAssistant` again under **Settings → General → External Device Manager → Device Connection Manager → Device List** on the TV.
+- **The entities stay unavailable after the TV was on for a long time.** The Art Mode service of the TV can stop answering until the TV restarts. Every request gives up after its timeout instead of waiting, so Home Assistant keeps starting normally; unplug the TV for 30 seconds to bring the service back.
+- **Home Assistant asks to pair again.** The TV no longer trusts the client. Open the re-authentication notice Home Assistant shows for the TV, select **Submit** and accept the request on the TV.
+- **A firmware update changed the identifier of the TV.** The integration recognises the TV by its MAC address and moves the entry, the device and the entities to the new identifier on its own, keeping their history.
 - Enable debug logging for `custom_components.samsung_frame` and attach the diagnostics dump when opening an issue.
 
 ## Development
