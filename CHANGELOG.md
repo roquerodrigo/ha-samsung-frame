@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2](https://github.com/roquerodrigo/ha-samsung-frame/compare/v1.0.1...v1.0.2) (2026-11-16)
+
+### Bug fixes
+
+- Home Assistant no longer asks for approval on the TV after every restart when the TV is also set up with the core Samsung Smart TV integration. ([#17](https://github.com/roquerodrigo/ha-samsung-frame/pull/17))
+
 ## [1.0.1](https://github.com/roquerodrigo/ha-samsung-frame/compare/v1.0.0...v1.0.1) (2026-11-15)
 
 ### Bug fixes
