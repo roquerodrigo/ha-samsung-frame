@@ -28,6 +28,19 @@ async def test_options_flow_persists_scan_interval(hass, setup_integration):
     assert setup_integration.options[CONF_SCAN_INTERVAL] == 60
 
 
+async def test_options_flow_reloads_the_entry(hass, setup_integration):
+    from custom_components import samsung_frame
+
+    result = await hass.config_entries.options.async_init(setup_integration.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={CONF_SCAN_INTERVAL: 60}
+    )
+    await hass.async_block_till_done()
+    assert samsung_frame.SamsungFrameApiClient.call_count == 2
+    coordinator = setup_integration.runtime_data.coordinator
+    assert coordinator.update_interval.total_seconds() == 60
+
+
 async def test_options_flow_uses_existing_value_as_default(hass, setup_integration):
     hass.config_entries.async_update_entry(
         setup_integration, options={CONF_SCAN_INTERVAL: 120}

@@ -146,6 +146,11 @@ class SamsungFrameApiClient:
         self._token = token
         self._lock = asyncio.Lock()
 
+    @property
+    def token(self) -> str | None:
+        """Return the token the client presents, ``None`` once the TV revoked it."""
+        return self._token
+
     async def async_get_device_info(self) -> SamsungFrameDeviceInfo:
         """Read the identity and capabilities the TV reports over REST."""
         async with self._lock:

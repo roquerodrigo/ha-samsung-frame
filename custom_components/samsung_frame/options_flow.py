@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import probatio
-from homeassistant.config_entries import ConfigFlowResult, OptionsFlow
+from homeassistant.config_entries import ConfigFlowResult, OptionsFlowWithReload
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.helpers import selector
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .data import SamsungFrameOptionsData
 
 
-class SamsungFrameOptionsFlow(OptionsFlow):
+class SamsungFrameOptionsFlow(OptionsFlowWithReload):
     """Options flow for Samsung The Frame."""
 
     async def async_step_init(

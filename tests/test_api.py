@@ -223,6 +223,7 @@ async def test_revoked_token_falls_back_to_a_tokenless_connection(hass, art):
         None,
         None,
     ]
+    assert client.token is None
 
 
 async def test_missing_token_is_not_retried(hass, art):

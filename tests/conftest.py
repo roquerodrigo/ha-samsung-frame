@@ -40,6 +40,7 @@ def art_state() -> dict:
 def mock_api_client(device_info: dict, art_state: dict) -> Generator:
     with patch("custom_components.samsung_frame.SamsungFrameApiClient") as mock_class:
         instance = mock_class.return_value
+        instance.token = TOKEN
         instance.async_get_device_info = AsyncMock(return_value=device_info)
         instance.async_get_art_state = AsyncMock(return_value=art_state)
         instance.async_set_art_mode = AsyncMock(return_value=None)

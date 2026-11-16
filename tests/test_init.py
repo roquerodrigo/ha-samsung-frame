@@ -6,10 +6,7 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.helpers import device_registry as dr
 
-from custom_components.samsung_frame import (
-    async_reload_entry,
-    async_remove_config_entry_device,
-)
+from custom_components.samsung_frame import async_remove_config_entry_device
 from custom_components.samsung_frame.const import (
     DEFAULT_SCAN_INTERVAL_SECONDS,
     DOMAIN,
@@ -38,8 +35,8 @@ async def test_setup_entry_creates_entities(hass, setup_integration):
     assert len(hass.states.async_all("sensor")) == 1
 
 
-async def test_setup_entry_registers_update_listener(hass, setup_integration):
-    assert len(setup_integration.update_listeners) == 1
+async def test_setup_entry_registers_no_update_listener(hass, setup_integration):
+    assert setup_integration.update_listeners == []
 
 
 async def test_setup_entry_retries_when_device_info_fails(
@@ -107,12 +104,6 @@ async def test_services_are_registered(hass, setup_integration):
 async def test_unload_entry_succeeds(hass, setup_integration):
     assert await hass.config_entries.async_unload(setup_integration.entry_id)
     assert setup_integration.state == ConfigEntryState.NOT_LOADED
-
-
-async def test_async_reload_entry_reloads(hass, setup_integration):
-    await async_reload_entry(hass, setup_integration)
-    await hass.async_block_till_done()
-    assert setup_integration.state == ConfigEntryState.LOADED
 
 
 async def test_runtime_data_populated(hass, setup_integration, device_info):
