@@ -1222,7 +1222,7 @@ wheels = [
 
 [[package]]
 name = "ha-samsung-frame"
-version = "1.0.1"
+version = "1.0.2"
 source = { virtual = "." }
 
 [package.dev-dependencies]
