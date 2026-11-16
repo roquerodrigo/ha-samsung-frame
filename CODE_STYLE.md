@@ -68,8 +68,11 @@ run `uv run ruff format --check .`, `uv run ruff check .` and
 - **Helper functions** may live in the same file as the single class that uses
   them (e.g. `_translated_errors` in `api.py`).
 - **`__init__.py` of the integration package** wires `async_setup` (action
-  registration), `async_setup_entry`,
-  `async_unload_entry`, `async_reload_entry` and nothing else.
+  registration), `async_setup_entry`, `async_unload_entry`,
+  `async_remove_entry`, `async_remove_config_entry_device` and nothing else.
+  There is no update listener: `SamsungFrameOptionsFlow` extends
+  `OptionsFlowWithReload`, so only an options change reloads the entry and the
+  coordinator can rewrite the stored token without one.
 
 ## Entities: one class per entity
 
